@@ -10,15 +10,12 @@ pub enum App {
     neofetch,
 }
 
-pub fn execute(command: &str, params: Option(Vec<&str>)) -> Result<()> {
+pub fn execute(command: &str, params: Option<Vec<&str>>) {
     if let Ok(app) = App::from_str(command) {
         match app {
-            neofetch =>  Neofetch()
+            neofetch => Neofetch::run(),
         }
     }
     else {
-        Err()
     }
-
-    Ok()
 }

@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 clearscreen = "2.0.1"
+strum = "0.25.0"
 strum_macros = "0.25.1"
 termcolor = "1.2.0"
