@@ -1,8 +1,7 @@
 use std::str::FromStr;
 use strum_macros::EnumString;
 
-use neofetch::Neofetch;
-use ls::Ls;
+use crate::{fs::FS};
 
 pub mod neofetch;
 pub mod ls;
@@ -15,11 +14,11 @@ pub enum App {
     Ls,
 }
 
-pub fn execute(command: &str, params: Option<Vec<&str>>) {
+pub fn execute(command: &str, params: Option<Vec<&str>>, fs: &FS) {
     if let Ok(app) = App::from_str(command) {
         match app {
-            App::Neofetch => Neofetch::run(),
-            App::Ls => Ls::run(),
+            App::Neofetch => neofetch::run(),
+            App::Ls => ls::run(fs, params.unwrap()[0].to_string()),
         }
     }
     else {

@@ -1,9 +1,0 @@
-pub struct FS {
-    cur_dir: &str,
-}
-
-impl FS {
-    pub fn new() -> FS {
-        FS { cur_dir: "/" }
-    }
-}

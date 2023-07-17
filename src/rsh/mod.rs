@@ -1,21 +1,23 @@
 use std::io::stdin;
 use termcolor::Color;
+use crate::fs::FS;
 use crate::sys::term::Term;
 use crate::app;
 
 
 pub struct RSH {
-    dir: String
+    dir: String,
+    fs: FS,
 }
 
 impl RSH {
-    pub fn new() -> RSH {
-        RSH { dir: String::from("/") }
+    pub fn new(fs: FS) -> RSH {
+        RSH { dir: String::from("/"), fs }
     }
 
     pub fn run(&self) {
         Term::clear(Color::Black);
-        app::execute("neofetch", None);
+        app::execute("neofetch", None, &self.fs);
 
 
         loop {
@@ -30,10 +32,17 @@ impl RSH {
                 .read_line(&mut command)
                 .expect("error: failed to read from stdin");
 
-            let parts: Vec<&str> = command.split(" ").collect();
-            let mut app = String::from(parts[0]);
-            app.pop();
-            app::execute(&app.as_str(), Some(parts[1..].to_vec()));
+            let mut parts: Vec<&str> = command.split(" ").collect();
+            let len = parts.len() - 1;
+            let app = String::from(parts[0]);
+
+            let mut last = parts.last().unwrap().to_string();
+            last = last.replace("\n", "");
+
+            parts[len] = last.as_str().clone();
+
+
+            app::execute(&app.as_str(), Some(parts[1..].to_vec()), &self.fs);
 
         }
     }

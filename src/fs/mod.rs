@@ -1,36 +1,60 @@
-use std::fs;
-use std::path::Path;
+use vfs::{VfsPath, PhysicalFS };
 
 pub struct File {
-    name: String,
-    path: String,
+    pub name: String,
+    pub path: String,
+    pub len: u64,
 }
 
-pub struct FS { }
+pub struct FS {
+    root: VfsPath,
+}
 
 impl FS {
-    pub fn ls(path: String) -> Vec<File> {
-        let os_path = Path::new(path.as_str());
+    pub fn new() -> FS {
+        let root = PhysicalFS::new("/home/alex/").into();
 
-        let mut files: Vec<File> = Vec::new();
+        FS { root }
+    }
 
-        if os_path.is_dir() {
-            if let Ok(entries) = fs::read_dir(os_path) {
-                for entry in entries {
-                    if let Ok(entry) = entry {
-                       let file = File {
-                            name: String::from(entry.file_name().to_str().unwrap()),
-                            path: String::from(entry.path().to_str().unwrap())
-                        };
-                        files.push(file);
-                    }
+    pub fn ls(&self, path: String) -> Vec<File> {
+        let mut contents: Vec<File> = Vec::new();
+
+        let target = self.root.join(path).unwrap();
+
+        let is_exist = target.exists().unwrap_or(false);
+        let is_dir = target.is_dir().unwrap_or(false);
+
+        if is_exist && is_dir {
+            let mut items: Vec<VfsPath> = target.read_dir().unwrap().collect();
+
+            items.sort_by_key(|path| path.as_str().to_string());
+
+            for item in items {
+                let name: String = item.filename();
+                let path = item.as_str().to_string();
+                
+
+                if name.starts_with(".") {
+                    continue;
                 }
+
+                let mut len: u64 = 0;
+                if let Ok(metadata) = item.metadata() {
+                    len = metadata.len;
+                }
+
+                let file = File {
+                    path,
+                    name,
+                    len,
+                };
+
+                contents.push(file);
             }
         }
-        else {
-            println!("error, path is not a directory");
-        }
-        files
+
+        contents
     }
 
     // pub fn cd(&mut self, path: &str) {
