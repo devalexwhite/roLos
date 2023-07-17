@@ -1,25 +1,28 @@
-use std::fs::{self,DirEntry};
+use std::fs;
 use std::path::Path;
 
-pub struct FS {
-    pub cur_dir: String
+pub struct File {
+    name: String,
+    path: String,
 }
 
+pub struct FS { }
+
 impl FS {
-    pub fn new() -> FS {
-        FS { cur_dir: String::from("/") }
-    }
+    pub fn ls(path: String) -> Vec<File> {
+        let os_path = Path::new(path.as_str());
 
-    pub fn ls(&self) {
-        let path = Path::new(&self.cur_dir);
+        let mut files: Vec<File> = Vec::new();
 
-        if (path.is_dir()) {
-            if let Ok(entries) = fs::read_dir(path) {
+        if os_path.is_dir() {
+            if let Ok(entries) = fs::read_dir(os_path) {
                 for entry in entries {
                     if let Ok(entry) = entry {
-                        println!("{}",
-                                 entry.path().display(),
-                                );
+                       let file = File {
+                            name: String::from(entry.file_name().to_str().unwrap()),
+                            path: String::from(entry.path().to_str().unwrap())
+                        };
+                        files.push(file);
                     }
                 }
             }
@@ -27,19 +30,20 @@ impl FS {
         else {
             println!("error, path is not a directory");
         }
+        files
     }
 
-    pub fn cd(&mut self, path: &str) {
-        let dir_path = Path::new(&path);
+    // pub fn cd(&mut self, path: &str) {
+    //     let dir_path = Path::new(&path);
 
-        if !dir_path.is_dir() {
-            println!("error, path is a file");
-        } else if !dir_path.exists() {
-            println!("error, path does not exist");
-        }
+    //     if !dir_path.is_dir() {
+    //         println!("error, path is a file");
+    //     } else if !dir_path.exists() {
+    //         println!("error, path does not exist");
+    //     }
 
-        self.cur_dir = path.to_string();
-    }
+    //     self.cur_dir = path.to_string();
+    // }
 
 
 }

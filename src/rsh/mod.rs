@@ -1,8 +1,7 @@
-use std::path::Path;
-use std::io::{Write, stdin, stdout};
-use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+use std::io::stdin;
+use termcolor::Color;
 use crate::sys::term::Term;
-use crate::app::neofetch::Neofetch;
+use crate::app;
 
 
 pub struct RSH {
@@ -16,8 +15,8 @@ impl RSH {
 
     pub fn run(&self) {
         Term::clear(Color::Black);
+        app::execute("neofetch", None);
 
-        Neofetch::run();
 
         loop {
             let mut command = String::new();
@@ -31,10 +30,11 @@ impl RSH {
                 .read_line(&mut command)
                 .expect("error: failed to read from stdin");
 
-        }
-    }
+            let parts: Vec<&str> = command.split(" ").collect();
+            let mut app = String::from(parts[0]);
+            app.pop();
+            app::execute(&app.as_str(), Some(parts[1..].to_vec()));
 
-    fn execute(command: &str) {
-        
+        }
     }
 }
